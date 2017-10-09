@@ -9,6 +9,5 @@ lazy val root = (project in file(".")).
     )),
     name := "Cake examples",
     libraryDependencies += scalaTest % Test,
-    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value//,
-    //libraryDependencies += "systems.flowing" %% "cake" % "0.1.0-SNAPSHOT" from "http://cake.flowing.systems/latest"
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
   )

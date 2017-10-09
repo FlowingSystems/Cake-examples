@@ -64,11 +64,11 @@ val bp = new Nodes[State with Order]
         }
 
         def input(channels: Map[String, Seq[Double]]) = {
-            (channels("inputValues") zip of[Input]).
-            foreach { case (x: Double, in: (Int, Input)) => in._2.state = x }
+            (channels("inputValues") zip of[Input].values).
+            foreach { case (x: Double, i: Input) => i.state = x }
 
-            (channels("targetValues") zip of[Target]).
-            foreach { case (x: Double, in: (Int, Target)) => in._2.target = x }
+            (channels("targetValues") zip of[Target].values).
+            foreach { case (x: Double, t: Target) => t.target = x }
 
             signal(propagate)
             feedback(backpropagate)
@@ -76,9 +76,9 @@ val bp = new Nodes[State with Order]
         }
 
         def output = Map(
-            "inputs" -> (nodes collect { case n: Input => n.state }),
-            "outputs" -> (nodes collect { case n: Output => n.state }),
-            "errors" -> (nodes collect { case n: Error => n.error })
+            "inputs" -> of[Input].values.toSeq.map(_.state),
+            "outputs" -> of[Output].values.toSeq.map(_.state),
+            "errors" -> of[Error].values.toSeq.map(_.error)
         )
     }
 
@@ -94,10 +94,16 @@ val bp = new Nodes[State with Order]
         foreach { j => bp(i, j) = Some(Util.random(-1, 1)) }
     }
 
-    val inputs = List(List(0.0, 0.0), List(0.0, 1.0), List(1.0, 0.0), List(1.0, 1.0))
+    val inputs = List(List(0.0, 0.0),
+                      List(0.0, 1.0),
+                      List(1.0, 0.0),
+                      List(1.0, 1.0))
+
     val or = List(0.0, 1.0, 1.0, 1.0) map (x=>List(x))
     val xor = List(0.0, 1.0, 1.0, 0.0) map (x=>List(x))
+
     def pickRandom(i: Int) = scala.util.Random.nextInt(inputs.length)
+
     val training = Revolve("inputValues" -> inputs,
                            "targetValues" -> xor)(pickRandom) >>
                    bp >>
