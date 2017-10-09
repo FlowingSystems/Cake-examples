@@ -21,25 +21,24 @@ trait Bias extends Input {
 object Backprop extends App {
     val learningRate = 0.005
 
-    val bp = new Nodes[State with Order]
-            with Hierarchy
-            with Directed
-            with Signal
-            with Feedback
-            with Flow
-            with IO
-            with AdjacencyList {
+val bp = new Nodes[State with Order]
+        with Hierarchy
+        with Directed with AdjacencyList
+        with Signal
+        with Feedback
+        with Flow
+        with IO {
 
-        val nodes =
-            Hierarchy(2, 2, 1).nodes(
-                () => new {val order = 0} with Input with Order,
-                () => new {val order = 1} with State with Order with Error,
-                () => new {val order = 2} with Output with Order with Target
-            ) ++
-            Nodes.nodes(
-                ((() => new {val order = 0} with Bias with Order), 1),
-                ((() => new {val order = 1} with Bias with Order), 1)
-            )
+    val nodes =
+        Hierarchy(2, 2, 1).nodes(
+            () => new {val order = 0} with Input with Order,
+            () => new {val order = 1} with State with Order with Error,
+            () => new {val order = 2} with Output with Order with Target
+        ) ++
+        Nodes.nodes(
+            ((() => new {val order = 0} with Bias with Order), 1),
+            ((() => new {val order = 1} with Bias with Order), 1)
+        )
 
         def sig(x: Double) = 1 / (1 + Math.pow(Math.E, -x))
         def dsig(x: Double) = x * (1 - x)
@@ -64,7 +63,7 @@ object Backprop extends App {
             from -> (weight - learningRate * nodes(i).asInstanceOf[Error].error * dsig(nodes(i).state) * nodes(from).state)
         }
 
-        def input(channels: Channels) = {
+        def input(channels: Map[String, Seq[Double]]) = {
             (channels("inputValues") zip of[Input]).
             foreach { case (x: Double, in: (Int, Input)) => in._2.state = x }
 
